@@ -1,11 +1,12 @@
 # CatchOnJobTrainingInfoFromTWJob
+<p>This programs aim to get information as below the Notion form demonstrate: </p>
+
+![image](https://user-images.githubusercontent.com/88480246/161496676-2b421b8f-a354-48ae-9c0a-e33b03adb3be.png)
+
 <p>To get required information as required with structure of web page like below:</p>
 
 ![image](https://user-images.githubusercontent.com/88480246/161496419-2240e681-878f-454e-83f3-3f94c6b99307.png)
 
-<p>This programs aim to get information as below the Notion form demonstrate: </p>
-
-![image](https://user-images.githubusercontent.com/88480246/161496676-2b421b8f-a354-48ae-9c0a-e33b03adb3be.png)
 
 
 Currently this programs have two method to store these information:
