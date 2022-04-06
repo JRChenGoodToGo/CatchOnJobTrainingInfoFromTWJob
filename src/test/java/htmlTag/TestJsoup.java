@@ -28,9 +28,11 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 //https://jsoup.org/cookbook/extracting-data/attributes-text-html
+// https://zenscrape.com/java-web-scraping-comprehensive-tutorial/
+
 // 產業人才投資方案的介面
 public class TestJsoup {
-	private static String URL="https://ojt.wda.gov.tw/ClassSearch/Detail?OCID=142676&plantype=1";
+	private static String URL="https://ojt.wda.gov.tw/ClassSearch/Detail?OCID=142810&plantype=1";
 //	private static String URL="https://ojt.wda.gov.tw/ClassSearch/Detail?OCID=142446&plantype=1";
 	private static String PATH="D:\\JavaFramePrac\\eclipse-workspace\\test\\src\\test\\java\\htmlTag";
 	private static String FILENAME="test.txt";
@@ -132,9 +134,6 @@ public class TestJsoup {
 //				fos.flush();
 //				fos.close();
 //			}
-// replace write-out code above by method			
-			testJsoup.writeInfosInDirectedMethod(jsonObj, "string");
-//			testJsoup.writeInfosInDirectedMethod(jsonObj, "object");
 			
 //// read object into	programs	
 //// objectInputStream
@@ -152,6 +151,14 @@ public class TestJsoup {
 //			System.out.println("trainingBrowse.getSubject()"+trainingBrowse.getSubject());
 //			System.out.println("trainingBrowse.getRegisterUrl()"+trainingBrowse.getRegisterUrl());
 //			System.out.println("trainingBrowse.getTrainingDateSpan()"+trainingBrowse.getTrainingDateSpan());
+			
+			File filePath =new File(PATH);
+// replace write-out code above by method			
+			testJsoup.writeInfosInDirectedMethod(filePath, jsonObj, "string");
+//			testJsoup.writeInfosInDirectedMethod(filePath, jsonObj, "object");			
+// replace read-into code above by method	
+//			TrainingSubjectBrowse trainingBrowse = testJsoup.readInfosUnderObjectInputStream(filePath);
+//			System.out.println("trainingBrowse=\n"+trainingBrowse);
 			
 		} catch(Exception e) {
 			System.out.println("Exception Message="+e);
@@ -292,7 +299,7 @@ public class TestJsoup {
 		System.out.println("------end for loop------");
 		return jsonObj;
 	}
-	public void writeInfosInDirectedMethod(JSONObject jsonObj, String writeByObjectOrString) throws Exception {
+	public void writeInfosInDirectedMethod(File filePath, JSONObject jsonObj, String writeByObjectOrString) throws Exception {
 		TrainingSubjectBrowse trainingSubjectBrowse = null;
 		if(writeByObjectOrString.toLowerCase().equals("string")) {
 // prepare to write in normal txt 			
@@ -315,14 +322,14 @@ public class TestJsoup {
 		}
 		
 // prepare file to write data		
-		File file = new File(PATH);
-		System.out.println("path="+file.getAbsolutePath());
-		if(file.isDirectory()) {
-			System.out.println("start write to "+file.getAbsolutePath()+"\\");
+//		File file = new File(PATH);
+//		System.out.println("path="+file.getAbsolutePath());
+		if(filePath.isDirectory()) {
+			System.out.println("start write to "+filePath.getAbsolutePath()+"\\");
 
 //https://mkyong.com/java/how-to-read-and-write-java-object-to-a-file/
 			// D:\xxx\xxx + \xxx.txt
-			FileOutputStream fos = new FileOutputStream(file+"\\"+FILENAME, true);
+			FileOutputStream fos = new FileOutputStream(filePath+"\\"+FILENAME, true);
 			if(writeByObjectOrString.toLowerCase().equals("string")) {
 // write object to file in normal txt				
 				OutputStreamWriter w = new OutputStreamWriter(fos);
@@ -343,9 +350,27 @@ public class TestJsoup {
 			fos.close();
 		} else {
 			System.out.println("no suchh dir, create one");
-			if(file.mkdirs()) {
-				System.out.println("create path:"+file+" success");
+			if(filePath.mkdirs()) {
+				System.out.println("create path:"+filePath+" success");
 			}
 		}
+	}
+	public TrainingSubjectBrowse readInfosUnderObjectInputStream(File filePath) throws Exception{
+// objectInputStream
+		TrainingSubjectBrowse trainingBrowse=null;
+//		File file = new File(PATH);
+		if(filePath.isDirectory()) {
+			FileInputStream fis = new FileInputStream(filePath+"\\"+FILENAME);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			trainingBrowse = (TrainingSubjectBrowse) ois.readObject();
+//			System.out.println(trainingBrowse);
+//			System.out.println(trainingBrowse.toString());
+			ois.close();
+			fis.close();
+		}
+//		System.out.println("trainingBrowse.getSubject()"+trainingBrowse.getSubject());
+//		System.out.println("trainingBrowse.getRegisterUrl()"+trainingBrowse.getRegisterUrl());
+//		System.out.println("trainingBrowse.getTrainingDateSpan()"+trainingBrowse.getTrainingDateSpan());
+		return trainingBrowse;
 	}
 }
