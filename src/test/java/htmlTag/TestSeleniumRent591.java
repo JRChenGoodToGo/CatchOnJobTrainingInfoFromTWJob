@@ -25,7 +25,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 //openhome.cc-> https://openhome.cc/Gossip/JavaGossip-V2/WaitNotify.htm
 //IT人-> https://iter01.com/273752.html
 //IT邦-> https://ithelp.ithome.com.tw/articles/10202999
-
+//**jsoup
+//Selector-> https://jsoup.org/apidocs/org/jsoup/select/Selector.html
 public class TestSeleniumRent591 {
 	private static WebDriver driver;
 	private static String URL="https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1&rentprice=5000,7000";
@@ -41,7 +42,12 @@ public class TestSeleniumRent591 {
 	private static Elements eItemListSection;
 	
 	private static List<String> eachDataBind, dataFirstList, dataTotalList, 
-								eachDataBindTemp, pageList;
+								eachDataBindTemp, pageList, 
+								itemListSubject, itemListSpace, 
+								itemListAddress, itemListCost;
+	private static List<String> itemListImg;
+	private static TestSeleniumRent591 testSeleniumRent591 = new TestSeleniumRent591();
+
 	public static void main(String[] args) {
 //use JBrowserDriver failed
 //		JBrowserDriver driver = new JBrowserDriver(Settings.builder().timezone(Timezone.ASIA_SHANGHAI).build());
@@ -77,13 +83,37 @@ public class TestSeleniumRent591 {
 			// length=30
 			System.out.println("eachDataBind.size()="+eachDataBind.size());
 
-			Elements eItemListSectionCosts = doc.select("section[data-browse-stated][class='vue-list-rent-item'] ");
-			System.out.println("eItemListSectionCosts="+eItemListSectionCosts);
+// 取得所需資訊，裝到List內		
+			// 主題 subject
+			Elements eItemListSectionSubject = doc.select("div[class='item-title']");
+			// <div class="item-title">南青路(近南崁路二段)挑高.採光佳套房 <!----></div>
+//			System.out.println("eItemListSectionSubject="+eItemListSectionSubject);
+			itemListSubject = eItemListSectionSubject.eachText();
+					
+			// 坪數 space
+			Elements eItemListSectionSpaces = doc.select("ul[class='item-style'] > li:eq(1)");
+			// <li>4坪</li>
+//			System.out.println("eItemListSectionSpaces="+eItemListSectionSpaces);
+			itemListSpace = eItemListSectionSpaces.eachText();
 			
+			// 地址 address
+			Elements eItemListSectionAddresses = doc.select("div[class='item-area'] > span");
+			// <span>蘆竹區-忠孝西路</span>
+//			System.out.println("eItemListSectionAddresses="+eItemListSectionAddresses);
+			itemListAddress = eItemListSectionAddresses.eachText();
 			
-// 換頁條件			
+			// 費用 cost
+			Elements eItemListSectionCosts = doc.select("div[class='item-price-text'] > span");
+			// <span>7,000</span>
+//			System.out.println("eItemListSectionCosts="+eItemListSectionCosts);
+			itemListCost = eItemListSectionCosts.eachText();
+					
+			// 照片 img
+			itemListImg = testSeleniumRent591.getListOfImgUrls("12357287");
+			System.out.println("itemListImg="+itemListImg);
+			
+// 鎖定換頁欄，取得所有ID			
 			// 先取得換頁數bar
-			Elements pageLimitBar = doc.select("section[class='vue-public-list-page'] > div[class='page-limit']");
 			// <div class="page-limit">
 			// 		<a class="pagePrev first">
 			// 			<span>上一頁</span>
@@ -92,11 +122,12 @@ public class TestSeleniumRent591 {
 			// 		<a class="pageNum-form" href="javascript:;" data-first="30" data-total="38">2</a>
 			// ......
 			// </div>
-			System.out.println("pageLimitBar="+pageLimitBar);
+			Elements pageLimitBar = doc.select("section[class='vue-public-list-page'] > div[class='page-limit']");
+//			System.out.println("pageLimitBar="+pageLimitBar);
 			// 取得各個頁數的標籤"a[class='pageNum-form'][href='javascript:;'], 
 			// <a class="pageNum-form" href="javascript:;" data-first="30" data-total="38">2</a>
 			Elements nextPageSection = pageLimitBar.select("a[class='pageNum-form'][href='javascript:;']");
-			System.out.println("nextPageSection="+nextPageSection);
+//			System.out.println("nextPageSection="+nextPageSection);
 			// List<String> -> eachAttr("data-first")得到各頁面的dataFirst值
 			// [30]
 			dataFirstList = nextPageSection.eachAttr("data-first");
@@ -113,7 +144,6 @@ public class TestSeleniumRent591 {
 			// for(<list.size()) List裡 get(i)取dataFirst值, 每次連接新網頁
 			// connect("https...&firstRow={dataFirst}&totalRows={dataTotal}")
 			// 取得下一個頁數的URL攜帶條件
-			TestSeleniumRent591 testSeleniumRent591 = new TestSeleniumRent591();
 			String nextPageUrl="";
 			String currentUrl=driver.getCurrentUrl();
 			if(dataFirstList.size()==0) {
@@ -189,5 +219,23 @@ public class TestSeleniumRent591 {
 		// length=8
 		System.out.println("eachDataBindTemp.size()="+eachDataBindTemp.size());
 		return eachDataBindTemp;
+	}
+	public List<String> getListOfImgUrls(String dataBindId) {
+		Elements directedIdSection = doc.select("section[data-bind="+dataBindId+"]");
+		
+		// 照片 img
+		// <ul class="carousel-list" style="left: 0px; width: 3060px;">
+		// 		<li>
+		//   		<img data-original="https://img1.591.com.tw/house/2021/11/30/163825287516577206.jpg!510x400.jpg" 
+		//		  			src="https://img1.591.com.tw/house/2021/11/30/163825287516577206.jpg!510x400.jpg" 
+		// 					alt="南崁忠孝西路電梯套房-全含租限女生" class="obsever-lazyimg">
+		// 		</li>
+		// 		...
+		// </ul>
+		Elements eItemListSectionImgs = directedIdSection.select("ul[class='carousel-list'] img");
+//		System.out.println("eItemListSectionImgs="+eItemListSectionImgs);
+		List<String> imgUrls = eItemListSectionImgs.eachAttr("data-original");
+//		System.out.println("imgUrls="+imgUrls);
+		return imgUrls; 
 	}
 }
