@@ -1,4 +1,4 @@
-package proj_TestStuff;
+package htmlTag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +39,10 @@ public class TestSeleniumRent591 {
 //	private static String URL="http://example.com";
 	private static String pageSource;
 	private static Document doc;
-	private static Elements eItemListSection;
+	private static Elements eItemSections;
 	
-	private static List<String> eachDataBind, dataFirstList, dataTotalList, 
-								eachDataBindTemp, pageList, 
+	private static List<String> dataBindIdList, dataFirstList, dataTotalList, 
+								dataBindIdTempList, pageList, 
 								itemListSubject, itemListSpace, 
 								itemListAddress, itemListCost;
 	private static List<String> itemListImg;
@@ -58,59 +58,71 @@ public class TestSeleniumRent591 {
 
 		
 //setProperty of chrome driver		
-		String propertySet = System.setProperty("webdriver.chrome.driver","D:\\JavaFrame\\myPlugins\\chromedriver.exe");
+		String propertySet = System.setProperty("webdriver.chrome.driver","D:\\JavaFramePrac\\myPlugins\\chromedriver.exe");
 		System.out.println("propertySet="+propertySet);
 		driver = new ChromeDriver();
 		
 		try {
-			driver.get(URL);
-			System.out.println("before sleep");
-			Thread.sleep(3000);
-			System.out.println("after sleep");
-			pageSource = driver.getPageSource();
-//			System.out.println("pageSource=\n"+pageSource);
+//			driver.get(URL);
+//			System.out.println("before sleep");
 //			Thread.sleep(3000);
+//			System.out.println("after sleep");
+//			pageSource = driver.getPageSource();
+////			System.out.println("pageSource=\n"+pageSource);
+////			Thread.sleep(3000);
+//			
+//			doc = Jsoup.parse(pageSource);
+//			eItemSections = doc.select("section");
+//			System.out.println("eItemSections="+eItemSections);
 			
-			doc = Jsoup.parse(pageSource);
-			eItemListSection = doc.select("section");
-//			System.out.println("eItemListSection="+eItemListSection);
+			eItemSections = testSeleniumRent591.connectDirectedUrlAndGetItemSections(URL);
 			
-//			String dataBind12235149 = eItemListSection.attr("data-bind");
+//			String dataBind12235149 = eItemSections.attr("data-bind");
 			// get all rent id that at first page (MAX: 30)
-			eachDataBind = eItemListSection.eachAttr("data-bind");
+//			dataBindIdList = eItemSections.eachAttr("data-bind");
+			dataBindIdList = testSeleniumRent591.getDataBindIdListOfOnePage(eItemSections);
 			// [12318860, 12255470, ..., 12347459]
-			System.out.println("eachDataBind="+eachDataBind);
+			System.out.println("dataBindIdList="+dataBindIdList);
 			// length=30
-			System.out.println("eachDataBind.size()="+eachDataBind.size());
+			System.out.println("dataBindIdList.size()="+dataBindIdList.size());
 
-// 取得所需資訊，裝到List內		
-			// 主題 subject
-			Elements eItemListSectionSubject = doc.select("div[class='item-title']");
-			// <div class="item-title">南青路(近南崁路二段)挑高.採光佳套房 <!----></div>
-//			System.out.println("eItemListSectionSubject="+eItemListSectionSubject);
-			itemListSubject = eItemListSectionSubject.eachText();
-					
-			// 坪數 space
-			Elements eItemListSectionSpaces = doc.select("ul[class='item-style'] > li:eq(1)");
-			// <li>4坪</li>
-//			System.out.println("eItemListSectionSpaces="+eItemListSectionSpaces);
-			itemListSpace = eItemListSectionSpaces.eachText();
+//// 取得所需資訊，裝到List內		
+//// 須注意在List內的物件是位於哪個URL底下			
+//			// 主題 subject
+//			Elements eItemListSectionSubject = eItemSections.select("div[class='item-title']");
+//			// <div class="item-title">南青路(近南崁路二段)挑高.採光佳套房 <!----></div>
+////			System.out.println("eItemListSectionSubject="+eItemListSectionSubject);
+//			itemListSubject = eItemListSectionSubject.eachText();
+			itemListSubject = testSeleniumRent591.getSubjectListOfOnePage(eItemSections);
+			System.out.println("itemListSubject="+itemListSubject+", length="+itemListSubject.size());
+//			
+//			// 坪數 space
+//			Elements eItemListSectionSpaces = eItemSections.select("ul[class='item-style'] > li:eq(1)");
+//			// <li>4坪</li>
+////			System.out.println("eItemListSectionSpaces="+eItemListSectionSpaces);
+//			itemListSpace = eItemListSectionSpaces.eachText();
+			itemListSpace = testSeleniumRent591.getSpaceListOfOnePage(eItemSections);
+			System.out.println("itemListSpace="+itemListSpace+", length="+itemListSpace.size());
+//			
+//			// 地址 address
+//			Elements eItemListSectionAddresses = eItemSections.select("div[class='item-area'] > span");
+//			// <span>蘆竹區-忠孝西路</span>
+////			System.out.println("eItemListSectionAddresses="+eItemListSectionAddresses);
+//			itemListAddress = eItemListSectionAddresses.eachText();
+			itemListAddress = testSeleniumRent591.getAddressListOfOnePage(eItemSections);
+			System.out.println("itemListAddress="+itemListAddress+", length="+itemListAddress.size());
+//			
+//			// 費用 cost
+//			Elements eItemListSectionCosts = eItemSections.select("div[class='item-price-text'] > span");
+//			// <span>7,000</span>
+////			System.out.println("eItemListSectionCosts="+eItemListSectionCosts);
+//			itemListCost = eItemListSectionCosts.eachText();
+			itemListCost = testSeleniumRent591.getCostListOfOnePage(eItemSections);
+			System.out.println("itemListCost="+itemListCost+", length="+itemListCost.size());
 			
-			// 地址 address
-			Elements eItemListSectionAddresses = doc.select("div[class='item-area'] > span");
-			// <span>蘆竹區-忠孝西路</span>
-//			System.out.println("eItemListSectionAddresses="+eItemListSectionAddresses);
-			itemListAddress = eItemListSectionAddresses.eachText();
-			
-			// 費用 cost
-			Elements eItemListSectionCosts = doc.select("div[class='item-price-text'] > span");
-			// <span>7,000</span>
-//			System.out.println("eItemListSectionCosts="+eItemListSectionCosts);
-			itemListCost = eItemListSectionCosts.eachText();
-					
 			// 照片 img
-			itemListImg = testSeleniumRent591.getListOfImgUrls("12357287");
-			System.out.println("itemListImg="+itemListImg);
+			itemListImg = testSeleniumRent591.getListOfImgUrls(dataBindIdList, "12281943");
+			System.out.println("itemListImg="+itemListImg+", length="+itemListImg.size());
 			
 // 鎖定換頁欄，取得所有ID			
 			// 先取得換頁數bar
@@ -157,12 +169,14 @@ public class TestSeleniumRent591 {
 				for(int loopPageNum=0; loopPageNum<dataFirstList.size(); loopPageNum++) {
 					nextPageUrl = currentUrl+"&firstRow="+dataFirstList.get(loopPageNum)+"&totalRows="+dataTotalList.get(loopPageNum);
 					System.out.println("nextPageUrl="+nextPageUrl);
-					eachDataBindTemp = testSeleniumRent591.goToNextPageAndGetDataBindIds(nextPageUrl);
+					dataBindIdTempList = testSeleniumRent591.goToNextPageAndGetDataBindIds(nextPageUrl);
 					// put list of resources of nextPage to the original List 
 					// [12318860, 12255470, ..., 12347459] addAll [6813041, 12335890, ...]
-					eachDataBind.addAll(eachDataBindTemp);
+					dataBindIdList.addAll(dataBindIdTempList);
 					// [12318860, 12255470, ..., 12347459, 6813041, 12335890, ...]
-
+					
+					List<String> itemListSubjectTemp = testSeleniumRent591.goToNextPageAndGetSubjectList(nextPageUrl);
+					itemListSubject.addAll(itemListSubjectTemp);
 				}
 				
 			}
@@ -186,9 +200,16 @@ public class TestSeleniumRent591 {
 //			WebDriver driver2 = driver.switchTo().window((String)windowHandles.get(0));
 	
 			
-			System.out.println("eachDataBind="+eachDataBind);
+			System.out.println("dataBindIdList="+dataBindIdList);
 			// length=38
-			System.out.println("eachDataBind.size()="+eachDataBind.size());
+			System.out.println("dataBindIdList.size()="+dataBindIdList.size());
+			
+			int gotIndexNum = testSeleniumRent591.findIndexOfTotalDataBindId(dataBindIdList, "12335813");
+			System.out.println("gotIndexNum="+gotIndexNum);
+			
+			System.out.println("itemListSubject="+itemListSubject);
+			// length=
+			System.out.println("itemListSubject.size()="+itemListSubject.size());
 			
 			driver.close();
 			driver.quit();
@@ -198,29 +219,92 @@ public class TestSeleniumRent591 {
 		}
 		
 	}
-	public List<String> goToNextPageAndGetDataBindIds(String nextPageUrl) throws Exception{
-		driver.get(nextPageUrl);
-		
+	public Elements connectDirectedUrlAndGetItemSections(String url) throws Exception {
+		driver.get(url);
 		Thread.sleep(3000);
 		pageSource = driver.getPageSource();
-//		System.out.println("pageSource2=\n"+pageSource2);
-//		Thread.sleep(3000);
-		
-		// 原本的pageSource直接被覆蓋
 		doc = Jsoup.parse(pageSource);
-		eItemListSection = doc.select("section");
-//		System.out.println("eItemListSection="+eItemListSection);
-		
-//		String dataBind12235149 = eItemListSection.attr("data-bind");
-		// get all rent id that at one page (8)
-		eachDataBindTemp = eItemListSection.eachAttr("data-bind");
-		// [6813041, 12335890, ...]
-		System.out.println("eachDataBindTemp="+eachDataBindTemp);
-		// length=8
-		System.out.println("eachDataBindTemp.size()="+eachDataBindTemp.size());
-		return eachDataBindTemp;
+		eItemSections = doc.select("section");
+		return eItemSections;
 	}
-	public List<String> getListOfImgUrls(String dataBindId) {
+	public List<String> getDataBindIdListOfOnePage(Elements eItemSections) {
+		List<String> dataBindIdList = eItemSections.eachAttr("data-bind");
+		return dataBindIdList;
+	}
+	// 取得所需資訊，裝到List內		
+	// 須注意在List內的物件是位於哪個URL底下			
+	public List<String> getSubjectListOfOnePage(Elements eItemSections) {
+		// 主題 subject
+		Elements eItemListSectionSubject = eItemSections.select("div[class='item-title']");
+		// <div class="item-title">南青路(近南崁路二段)挑高.採光佳套房 <!----></div>
+//					System.out.println("eItemListSectionSubject="+eItemListSectionSubject);
+		List<String> itemListSubject = eItemListSectionSubject.eachText();
+//		System.out.println("itemListSubject="+itemListSubject+", length="+itemListSubject.size());
+		return itemListSubject;
+	}
+	public List<String> getSpaceListOfOnePage(Elements eItemSections) {
+		// 坪數 space
+		Elements eItemListSectionSpaces = eItemSections.select("ul[class='item-style'] > li:eq(1)");
+		// <li>4坪</li>
+//					System.out.println("eItemListSectionSpaces="+eItemListSectionSpaces);
+		List<String> itemListSpace = eItemListSectionSpaces.eachText();
+//		System.out.println("itemListSpace="+itemListSpace+", length="+itemListSpace.size());
+		return itemListSpace;
+	}
+	public List<String> getAddressListOfOnePage(Elements eItemSections) {
+		// 地址 address
+		Elements eItemListSectionAddresses = eItemSections.select("div[class='item-area'] > span");
+		// <span>蘆竹區-忠孝西路</span>
+//					System.out.println("eItemListSectionAddresses="+eItemListSectionAddresses);
+		List<String> itemListAddress = eItemListSectionAddresses.eachText();
+//		System.out.println("itemListAddress="+itemListAddress+", length="+itemListAddress.size());
+		return itemListAddress;
+	}
+	public List<String> getCostListOfOnePage(Elements eItemSections) {
+		// 費用 cost
+		Elements eItemListSectionCosts = eItemSections.select("div[class='item-price-text'] > span");
+		// <span>7,000</span>
+//					System.out.println("eItemListSectionCosts="+eItemListSectionCosts);
+		List<String> itemListCost = eItemListSectionCosts.eachText();
+//		System.out.println("itemListCost="+itemListCost+", length="+itemListCost.size());
+		return itemListCost;
+	}
+	public List<String> goToNextPageAndGetDataBindIds(String nextPageUrl) throws Exception{
+//		driver.get(nextPageUrl);
+//		
+//		Thread.sleep(3000);
+//		pageSource = driver.getPageSource();
+//		
+//		// 原本的pageSource直接被覆蓋
+//		doc = Jsoup.parse(pageSource);
+//		eItemSections = doc.select("section");
+//		System.out.println("eItemSections="+eItemSections);
+		
+		eItemSections = connectDirectedUrlAndGetItemSections(nextPageUrl);
+		
+//		String dataBind12235149 = eItemSections.attr("data-bind");
+		// get all rent id that at one page (8)
+//		dataBindIdTempList = eItemSections.eachAttr("data-bind");
+		List<String> dataBindIdTempList = getDataBindIdListOfOnePage(eItemSections);
+		// [6813041, 12335890, ...]
+		System.out.println("current dataBindIdTempList="+dataBindIdTempList);
+		// length=8
+		System.out.println("current dataBindIdTempList.size()="+dataBindIdTempList.size());
+		return dataBindIdTempList;
+	}
+	public List<String> goToNextPageAndGetSubjectList(String nextPageUrl) throws Exception{
+		eItemSections = connectDirectedUrlAndGetItemSections(nextPageUrl);
+		List<String> itemListSubjectTemp = getSubjectListOfOnePage(eItemSections);
+		System.out.println("current itemListSubjectTemp="+itemListSubjectTemp);
+		// length=8
+		System.out.println("current itemListSubjectTemp.size()="+itemListSubjectTemp.size());
+		return itemListSubjectTemp;
+	}
+	public List<String> getListOfImgUrls(List<String> dataBindIdList, String dataBindId) {
+		// 先檢查是否有找到此Id的index值
+		Integer indexOfId = findIndexOfTotalDataBindId(dataBindIdList, dataBindId);
+		
+		// 須注意所蒐尋的id與連結網址的關聯性
 		Elements directedIdSection = doc.select("section[data-bind="+dataBindId+"]");
 		
 		// 照片 img
@@ -237,5 +321,14 @@ public class TestSeleniumRent591 {
 		List<String> imgUrls = eItemListSectionImgs.eachAttr("data-original");
 //		System.out.println("imgUrls="+imgUrls);
 		return imgUrls; 
+	}
+	public Integer findIndexOfTotalDataBindId(List<String> dataBindIdList, String dataBindId) {
+		int loopNum=0;
+		for(loopNum=0; loopNum<dataBindIdList.size(); loopNum++) {
+			if(dataBindIdList.get(loopNum).equals(dataBindId)){
+				break;
+			}
+		}
+		return loopNum==0? 0: loopNum;
 	}
 }
