@@ -27,6 +27,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
+import htmlTagDao.Rent591ItemsDao;
+
 //https://jsoup.org/cookbook/extracting-data/attributes-text-html
 // https://zenscrape.com/java-web-scraping-comprehensive-tutorial/
 
@@ -35,7 +37,7 @@ public class TestJsoup {
 	private static String URL="https://ojt.wda.gov.tw/ClassSearch/Detail?OCID=142810&plantype=1";
 //	private static String URL="https://ojt.wda.gov.tw/ClassSearch/Detail?OCID=142446&plantype=1";
 	private static String PATH="D:\\JavaFramePrac\\eclipse-workspace\\test\\src\\test\\java\\htmlTag";
-	private static String FILENAME="test.txt";
+	private static String FILENAME="test4.txt";
 	
 	private static Map<String, String> gotMapListOfThTd;
 	private static java.util.List<Entry<String, String>> listOfEntryOfThTd;
@@ -299,6 +301,53 @@ public class TestJsoup {
 		System.out.println("------end for loop------");
 		return jsonObj;
 	}
+	
+	// jsonObj is not Serializable
+	public void writeInfosInDirectedMutualMethod(File filePath, JSONObject jsonObj,
+			Rent591ItemsDao rent591ItemsDao, String writeByObjectOrString) throws Exception {
+// prepare file to write data		
+//		File file = new File(PATH);
+//		System.out.println("path="+file.getAbsolutePath());
+		if(filePath.isDirectory()) {
+			System.out.println("start write to "+filePath.getAbsolutePath()+"\\");
+//			if(object instanceof JSONObject) {
+//				System.out.println("object instanceof JSONObject");
+//				System.out.println("jsonObj.toString(1)="+ ((JSONObject)object).toString(2)); 
+//				
+//			} else if(object instanceof Rent591ItemsDao) {
+//				System.out.println("object instanceof Rent591ItemsDao");
+//				
+//			}
+//https://mkyong.com/java/how-to-read-and-write-java-object-to-a-file/
+			// D:\xxx\xxx + \xxx.txt
+			FileOutputStream fos = new FileOutputStream(filePath+"\\"+FILENAME, true);
+			if(writeByObjectOrString.toLowerCase().equals("string")) {
+// write object to file in normal txt				
+				OutputStreamWriter w = new OutputStreamWriter(fos);
+				w.write("\n"+(jsonObj).toString());
+				w.flush();
+				w.close();
+			} else if(writeByObjectOrString.toLowerCase().equals("object")) {
+// write object to file in ObjectOutputStream
+				ObjectOutputStream w = new ObjectOutputStream(fos);
+				w.writeObject(rent591ItemsDao);
+				System.out.println("---------flag--------");
+				w.flush();
+				w.close();
+			}
+			
+			System.out.println("write to file:"+FILENAME+" success!");
+
+			fos.flush();
+			fos.close();
+		} else {
+			System.out.println("no suchh dir, create one");
+			if(filePath.mkdirs()) {
+				System.out.println("create path:"+filePath+" success");
+			}
+		}
+	}
+
 	public void writeInfosInDirectedMethod(File filePath, JSONObject jsonObj, String writeByObjectOrString) throws Exception {
 		TrainingSubjectBrowse trainingSubjectBrowse = null;
 		if(writeByObjectOrString.toLowerCase().equals("string")) {
@@ -326,7 +375,7 @@ public class TestJsoup {
 //		System.out.println("path="+file.getAbsolutePath());
 		if(filePath.isDirectory()) {
 			System.out.println("start write to "+filePath.getAbsolutePath()+"\\");
-
+			System.out.println("jsonObj.toString(1)="+jsonObj.toString(2)); 
 //https://mkyong.com/java/how-to-read-and-write-java-object-to-a-file/
 			// D:\xxx\xxx + \xxx.txt
 			FileOutputStream fos = new FileOutputStream(filePath+"\\"+FILENAME, true);

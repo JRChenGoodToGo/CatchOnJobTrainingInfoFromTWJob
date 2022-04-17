@@ -41,14 +41,4 @@ url5="";
 url6="";
 url7="";
 
-TrainingSubjectBrowse {
-	subject-課程名稱=全方位商用英文實務班, 
-	trainingStartEnd-預定訓練起訖日期=111/06/25 ~ 111/08/06, 
-	trainingDateSpan-上課時間=每週六9:00~12:00;13:30-16:30上課, 
-	locationTraining-縣 市 別=臺中市, 
-	totalTrainingHours-訓練時數=42 小時, 
-	cost-訓練費用=1,386/5,544, 
-	registerStart-報名日期(起)=111/05/25 12:00 , 
-	RegisterEnd-報名日期(迄)= 111/06/22 18:00 , 
-	registerUrl-報名網址=https://ojt.wda.gov.tw/ClassSearch/Detail?OCID=142810&plantype=1
-}
+
