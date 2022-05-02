@@ -18,6 +18,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriver.TargetLocator;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import fnTest.TestPoiExcel;
 import htmlTagDao.Rent591ItemDao;
 import htmlTagDao.Rent591ItemsDao;
 
@@ -39,14 +40,14 @@ import htmlTagDao.Rent591ItemsDao;
 //Selector-> https://jsoup.org/apidocs/org/jsoup/select/Selector.html
 public class TestSeleniumRent591 {
 	private static WebDriver driver;
-//	private static String URL="https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1&rentprice=5000,7000";
-	private static String firstPageUrl="https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1";
+	private static String firstPageUrl="https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1&rentprice=5000,7000&order=money&orderType=desc";
+//	private static String firstPageUrl="https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1";
 //							  "https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1&rentprice=5000,7000&firstRow=30&totalRows=39"
 //							  "https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1"
 //							  "https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1&firstRow=30&totalRows=72"
 //							  "https://rent.591.com.tw/?region=6&section=79,78&searchtype=1&kind=3&showMore=1&firstRow=60&totalRows=72"
 	private static String PATH="D:\\JavaFramePrac\\eclipse-workspace\\test\\src\\test\\java\\htmlTag";
-	private static String FILENAME="Rent591ItemsDao.txt";
+	private static String FILENAME="220424_Rent591ItemsDao.txt";
 	
 //	private static String URL="http://example.com";
 	private static String pageSource;
@@ -61,6 +62,7 @@ public class TestSeleniumRent591 {
 	private static TestSeleniumRent591 testSeleniumRent591;
 	private static Rent591ItemsDao rent591ItemsDao; 
 	private static Rent591ItemDao rent591ItemDao; 
+	private static TestPoiExcel testPoiExcel; 
 //	private static String firstPageUrl;
 	
 	public TestSeleniumRent591() {
@@ -71,6 +73,9 @@ public class TestSeleniumRent591 {
 		driver = new ChromeDriver();
 		rent591ItemsDao = new Rent591ItemsDao();
 		rent591ItemDao = new Rent591ItemDao();
+	}
+	public TestPoiExcel getPoiInstance() {
+		return new TestPoiExcel();
 	}
 	public static void main(String[] args) {
 //use JBrowserDriver failed
@@ -244,10 +249,12 @@ public class TestSeleniumRent591 {
 			
 //	put list of Imgs by each dataBindId to the List
 			List<List<String>> itemListImgList = new ArrayList<List<String>>();
+			System.out.println("-----start store list of imgs into a List-----");
 			for(int loopDataBindIdNum=0; loopDataBindIdNum<dataBindIdList.size(); loopDataBindIdNum++) {
 				itemListImg = testSeleniumRent591.getListOfImgUrls(dataBindIdList, dataBindIdList.get(loopDataBindIdNum));
 				itemListImgList.add(itemListImg);
 			}
+			System.out.println("-----store list of imgs into a List success-----");
 			System.out.println("itemListImgList.get(0)="+itemListImgList.get(0)+"\n, size="+itemListImgList.size());
 			// test getListOfImgUrls()
 //			List<String> testList = testSeleniumRent591.getListOfImgUrls(dataBindIdList, dataBindIdList.get(0));
@@ -295,18 +302,25 @@ public class TestSeleniumRent591 {
 //					itemListAddress, itemListCost);
 //			System.out.println("rent591ItemDao=>\n"+rent591ItemDao);
 	// replace method above by calling Rent591ItemsDao
-			rent591ItemDao = testSeleniumRent591.getDirectedItemDaoBySubject(
-					"🎀大園🎀分租套房🎀不收服務費", rent591ItemsDao.getDataBindIdList(), 
-					rent591ItemsDao.getItemSubjectList(), rent591ItemsDao.getItemSpaceList(), 
-					rent591ItemsDao.getItemAddressList(), rent591ItemsDao.getItemCostList());
+//			rent591ItemDao = testSeleniumRent591.getDirectedItemDaoBySubject(
+//					"🎀大園🎀分租套房🎀不收服務費", rent591ItemsDao.getDataBindIdList(), 
+//					rent591ItemsDao.getItemSubjectList(), rent591ItemsDao.getItemSpaceList(), 
+//					rent591ItemsDao.getItemAddressList(), rent591ItemsDao.getItemCostList());
 //			System.out.println("rent591ItemDao=>\n"+rent591ItemDao);
 
 			// ObjectStream to store Dao
-			testSeleniumRent591.writeInfosInDirectedMutualMethod(new File(PATH), rent591ItemsDao, "object");
-			Object readObject = testSeleniumRent591.readInfosUnderObjectInputStream(new File(PATH));
+			testSeleniumRent591.writeInfosInDirectedMutualMethod(new File(PATH), FILENAME, rent591ItemsDao, "object");
+			Object readObject = testSeleniumRent591.readInfosUnderObjectInputStream(new File(PATH), FILENAME);
 			if(readObject instanceof Rent591ItemsDao) {
 				Rent591ItemsDao showIdentity = (Rent591ItemsDao) readObject;
 				System.out.println("showIdentity.getItemListImgList().get(0)="+showIdentity.getItemListImgList().get(0));
+
+				String[] formHead = new String[]{"ID", "標題", "坪數", "地址", "價錢"};
+				int rowBase=2;//第2列
+				int colBase=2;//第2欄
+				testPoiExcel = testSeleniumRent591.getPoiInstance();
+				testPoiExcel.writeRent591ItemsInfoToExcel(formHead, rowBase, colBase, rent591ItemsDao);
+				
 			} else if(readObject instanceof Rent591ItemDao) {
 				Rent591ItemDao showIdentity = (Rent591ItemDao) readObject;
 				System.out.println("showIdentity="+showIdentity);
@@ -617,7 +631,7 @@ public class TestSeleniumRent591 {
 		}
 		return null;
 	}
-	public void writeInfosInDirectedMutualMethod(File filePath, Object dao, String writeByObjectOrString) throws Exception {
+	public void writeInfosInDirectedMutualMethod(File filePath, String fileName, Object dao, String writeByObjectOrString) throws Exception {
 // prepare file to write data		
 //		File file = new File(PATH);
 //		System.out.println("path="+file.getAbsolutePath());
@@ -628,7 +642,7 @@ public class TestSeleniumRent591 {
 			FileOutputStream fos = null;
 			if(writeByObjectOrString.toLowerCase().equals("string")) {
 // write object to file in normal txt				
-				fos = new FileOutputStream(filePath+"\\"+FILENAME, true);
+				fos = new FileOutputStream(filePath+"\\"+fileName, true);
 				OutputStreamWriter w = new OutputStreamWriter(fos);
 				if(dao instanceof JSONObject) {
 					System.out.println("dao instanceof JSONObject");
@@ -663,14 +677,14 @@ public class TestSeleniumRent591 {
 			}
 		}
 	}
-	public Object readInfosUnderObjectInputStream(File filePath) throws Exception{
+	public Object readInfosUnderObjectInputStream(File filePath, String fileName) throws Exception{
 		// objectInputStream
 		Rent591ItemsDao rent591ItemsDao=null;
 		Rent591ItemDao rent591ItemDao=null;
 //		File file = new File(PATH);
 		Object object=null;
 		if(filePath.isDirectory()) {
-			FileInputStream fis = new FileInputStream(filePath+"\\"+FILENAME);
+			FileInputStream fis = new FileInputStream(filePath+"\\"+fileName);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			object = ois.readObject();
 			if(object instanceof Rent591ItemsDao) {
