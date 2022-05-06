@@ -1,21 +1,41 @@
-package htmlTag;
+package com.filler;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.net.URI;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.NoSuchSessionException;
+import org.openqa.selenium.SessionNotCreatedException;
+import org.openqa.selenium.UnhandledAlertException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.interactions.Actions;
 
-import fnTest.TestIniReader;
-import iniReadDao.IniReaderDao;
+import com.filler.dao.IniReaderDao;
 
 // perform click onto RadioBtn-> https://stackoverflow.com/questions/44912203/selenium-web-driver-java-element-is-not-clickable-at-point-x-y-other-elem
+// clickable link on JLabel-> https://www.codejava.net/java-se/swing/how-to-create-hyperlink-with-jlabel-in-java-swing
+
 public class TestSeleniumWebDriver {
 	private static String URL="https://www.surveycake.com/s/xvrnW";
 	
@@ -28,22 +48,82 @@ public class TestSeleniumWebDriver {
 	
 	public TestSeleniumWebDriver() {
 	}
-	public static void setBrowser(String browser, String webDriverLocation) {
-		if(browser.toLowerCase().equals("google")) {
-			System.setProperty("webdriver.chrome.driver", webDriverLocation);
-			driver = new ChromeDriver();
-		} else if(browser.toLowerCase().equals("edge")) {
-			
+	public void showWebLink(String browser, String[] exceptionMessage) {
+		System.out.println("enter showWebLink()");
+		JFrame frame = new JFrame();
+		frame.setTitle("Need a updated version of web driver!");
+		JLabel labelLink = new JLabel();
+		labelLink.setForeground(Color.BLUE);
+		labelLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		labelLink.setText("<html><body>"
+							+ "click link here to download web driver<br>"
+							+ exceptionMessage[1]
+							+ "</body></html>");
+		labelLink.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					if(browser.toLowerCase().equals("google")) {
+						Desktop.getDesktop().browse(new URI("https://sites.google.com/chromium.org/driver/downloads?authuser=0"));
+					} else if(browser.toLowerCase().equals("edge")) {
+						Desktop.getDesktop().browse(new URI("https://msedgewebdriverstorage.z22.web.core.windows.net/"));
+					}
+				} catch(Exception eBrowsePage) {
+					System.out.println("eBrowsePage="+eBrowsePage);
+				}
+			}
+		});
+		frame.setLayout(new FlowLayout());
+		frame.setSize(800, 150);
+		frame.getContentPane().add(labelLink);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+	}
+	public void showThisDir() {
+		System.out.println("webDriver location="+iniReaderDao.getWebDriverLocation());
+		String pathFileOfWebBrowserInStringType= iniReaderDao.getWebDriverLocation();
+		
+		try {
+			File pathFileOfWebBrowser = new File(pathFileOfWebBrowserInStringType);
+			// remove xxxxdriver.exe
+			String pathOfExeFile = pathFileOfWebBrowserInStringType.substring(0, pathFileOfWebBrowserInStringType.indexOf(pathFileOfWebBrowser.getName()));
+			System.out.println("pathOfExeFile="+pathOfExeFile);
+			int answerOfOpenDirOrNot = JOptionPane.showConfirmDialog(null, "open this directory?");
+			System.out.println("answerOfOpenDirOrNot="+answerOfOpenDirOrNot);
+			if(answerOfOpenDirOrNot==0) {
+				Desktop.getDesktop().open(new File(pathOfExeFile));;
+			}
+		} catch(Exception e) {
+			System.out.println(e);
 		}
 	}
-//	public TestSeleniumWebDriver(String browser) {
-//		if(browser.toLowerCase().equals("google")) {
-//			System.setProperty("webdriver.chrome.driver", webDriverLocation);
-//			driver = new ChromeDriver();
-//		} else if(browser.toLowerCase().equals("edge")) {
-//			
-//		}
-//	}
+	public void setBrowser(String browser, String webDriverLocation) {
+		try {
+			if(browser.toLowerCase().equals("google")) {
+				System.setProperty("webdriver.chrome.driver", webDriverLocation);
+				driver = new ChromeDriver();
+			} else if(browser.toLowerCase().equals("edge")) {
+				System.setProperty("webdriver.edge.driver", webDriverLocation);
+				driver = new EdgeDriver();	
+			}
+		} catch(SessionNotCreatedException e) {
+			System.out.println("web driver encounter some problems ->");
+			System.out.println("got message->\n");
+			String[] splittedExceptionMessage = e.getMessage().split("[\n]");
+			// check all Exception message in array
+//			for(int loopEcpNum=0; loopEcpNum<splittedExceptionMessage.length; loopEcpNum++) {
+//				System.out.println(splittedExceptionMessage[loopEcpNum]+", ");
+//			}
+			JOptionPane.showMessageDialog(null, "web driver encounter some problems!! \nPlease check the version\n"+splittedExceptionMessage[0]+", \n"+splittedExceptionMessage[1]);
+			showThisDir();
+			showWebLink(browser, splittedExceptionMessage);
+//			e.printStackTrace();
+		} catch(Exception eAll) {
+			System.out.println("web driver encounter some problems, wrong position");
+			JOptionPane.showMessageDialog(null, "web driver may have a wrong position ");
+			eAll.getMessage();
+		}
+	}
 	private TestIniReader getTestIniReaderInstance() {
 		try {
 			testIniReader=new TestIniReader();
@@ -76,7 +156,9 @@ public class TestSeleniumWebDriver {
 		iniReaderDao = testIniReader.getIniReaderDaoOfFillInInfo();
 		System.out.println("iniReaderDao in TestSeleniumWebDriver=\n"+iniReaderDao);
 		
-		setBrowser(iniReaderDao.getBrowser(), iniReaderDao.getWebDriverLocation());
+		System.out.println("flag1");
+		testSeleniumWebDriver.setBrowser(iniReaderDao.getBrowser(), iniReaderDao.getWebDriverLocation());
+		System.out.println("flag2");
 		
 		driver.get(URL);
 		waitAWhile(3000, doWait);
@@ -180,6 +262,40 @@ public class TestSeleniumWebDriver {
 			driver.close();
 			driver.quit();
 		}
+		waitAWhile(2000, true);
+		
+		//if no auto close page, detect if user already close page
+		//if already close page, throw NoSuchSessionException if driver.getTitle encounter problem
+		while(iniReaderDao.getAutoClosePage().toLowerCase().equals("false")) {
+			// detect web page is closed
+			try {
+				System.out.println("driver.getCurrentUrl()="+driver.getCurrentUrl());
+				System.out.println("driver.getTitle()="+driver.getTitle());
+				waitAWhile(5000, true);
+				
+			} catch(UnhandledAlertException eUnhandledAlert) {
+				System.out.println("eUnhandledAlert="+eUnhandledAlert);
+				driver.close();
+				driver.quit();
+			} catch(NoSuchSessionException eNoSuchSession) {
+				System.out.println("eNoSuchSession="+eNoSuchSession);
+				driver.close();
+				driver.quit();
+			} catch(WebDriverException eWebDriver) {
+				try {
+					System.out.println("eWebDriver="+eWebDriver);
+				} catch(Exception eTest) {
+					System.out.println("eTest="+eTest);
+				}
+				System.out.println("is it webDriverException?");
+				driver.quit();
+			} catch(Exception eAll) {
+				System.out.println("eAll="+eAll);
+				driver.close();
+				driver.quit();
+			}
+		}
+		System.out.println("outside while loop");
 	}
 	public static void waitAWhile(long timeMil, boolean doWait) {
 		if(doWait) {
@@ -217,3 +333,4 @@ public class TestSeleniumWebDriver {
 		return todayGrid;
 	}
 }
+
