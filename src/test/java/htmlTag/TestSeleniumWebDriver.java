@@ -1,6 +1,5 @@
-package com.filler;
+package htmlTag;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -10,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +29,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.interactions.Actions;
 
-import com.filler.dao.IniReaderDao;
+import fnTest.TestIniReader;
+import iniReadDao.IniReaderDao;
 
 // perform click onto RadioBtn-> https://stackoverflow.com/questions/44912203/selenium-web-driver-java-element-is-not-clickable-at-point-x-y-other-elem
 // clickable link on JLabel-> https://www.codejava.net/java-se/swing/how-to-create-hyperlink-with-jlabel-in-java-swing
@@ -48,7 +47,7 @@ public class TestSeleniumWebDriver {
 	
 	public TestSeleniumWebDriver() {
 	}
-	public void showWebLink(String browser, String[] exceptionMessage) {
+	public void showWebLink(final String browser, String[] exceptionMessage) {
 		System.out.println("enter showWebLink()");
 		JFrame frame = new JFrame();
 		frame.setTitle("Need a updated version of web driver!");
